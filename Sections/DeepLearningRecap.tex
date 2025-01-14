@@ -1,0 +1,96 @@
+\section{Deep Learning Recap}
+
+\subsection{Neural Network Types}
+\subsubsection{Multi-Layer Perceptron (MLP)}
+\begin{itemize}
+    \item Input: \( n \)-dimensional, Output: \( m \)-dimensional.
+    \item Fully connected hidden layers.
+    \item Applications: Classification, regression, feature transformation, and dimensionality reduction.
+\end{itemize}
+Base equation / shallow network:
+\[
+f(x) = \sum_{i = 1}^{N} a_i \sigma(\mathbf{w}_i\cdot\mathbf{x} + b_i)
+\]
+For deep network:
+\[
+    y = f_3(f_2(f_1(x)))
+\]
+
+\subsubsection{Convolutional Neural Networks (CNNs)}
+\begin{itemize}
+    \item Feature extraction through convolutional layers.
+    \item Supports multi-channel inputs (e.g., RGB images).
+    \item Applications: Image processing, signal analysis, time-series data, 3D datasets like MRI.
+\end{itemize}
+Properties:
+\begin{itemize}
+    \item Weights(parameters) are shared
+    \item Connections are sparse
+    \item Each node in a layer has a receptive field
+\end{itemize}
+For multi-channel inputs, a diffrent kernel is applied for each channel.
+The resulting channels are summed:
+\[
+C_{out,j} = b_j + \sum_{k=0}^{C_{in}-1} w \star f(x,y)
+\]
+
+Good practiec is to replace large filters with multiple smaller.
+
+\subsection{Key Architectural Patterns}
+\subsubsection{Reducing and Increasing Output Size}
+\begin{itemize}
+    \item Techniques: Strided convolutions, pooling, upsampling, and transposed convolutions.
+\end{itemize}
+
+\subsubsection{Improving Efficiency}
+\begin{itemize}
+    \item Bottleneck layers: Use \( 1 \times 1 \) convolutions to reduce channel dimensions.
+    \item Separable filtes(for $7\times7$ use $(7\times1) \cdot (1\times7)$).
+    \item Depthwise separable convolutions for sparse connectivity.
+    \item Instead of one $11 \times 11$ conv. layer use 5 $3\times3$.
+\end{itemize}
+
+\subsubsection{Residual Connections}
+\begin{itemize}
+    \item Allow better gradient flow in deep networks.
+    \item Key to ResNet architectures.
+\end{itemize}
+
+\subsubsection{Regularization}
+\begin{itemize}
+    \item Techniques: Dropout, \( L_2 \)-regularization.
+    \item Goal: Prevent overfitting and improve generalization.
+\end{itemize}
+
+\subsection{Training Considerations}
+\subsubsection{Layer/Batch normalization}
+\begin{itemize}
+    \item Use to normalize input to layers
+    \item Accelerates training, importves generalization
+\end{itemize}
+\begin{equation*}
+    \hat{x}^{(i)} = \frac{x^{(i)} - \mu_{\text{batch}}}{\sqrt{\sigma^2_{\text{batch}} + \epsilon}}
+\end{equation*}
+    
+\begin{equation*}
+    y^{(i)} = \gamma \hat{x}^{(i)} + \beta
+\end{equation*}
+\(\gamma\) and \(\beta\) are learnd from mini batches.
+
+\subsubsection{Weight Initialization}
+\begin{itemize}
+    \item Xavier initialization ensures variance proportionality.
+\end{itemize}
+
+\subsubsection{Activation Functions}
+\begin{itemize}
+    \item Options: ReLU, Leaky ReLU, Sigmoid, Tanh, etc.
+    \item ReLU variants preferred for stability.
+\end{itemize}
+
+\subsubsection{Optimizers}
+\begin{itemize}
+    \item Popular choices: SGD, Adam, RMSprop.
+    \item Trade-offs between convergence speed and generalization.
+\end{itemize}
+
