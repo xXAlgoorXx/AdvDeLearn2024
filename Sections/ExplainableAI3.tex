@@ -212,4 +212,70 @@ Problems:
     \item Requires background dataset
 \end{itemize}
 
-\subsection{Local model agnostic}
+\subsection{Local model agnostic method (LIME)}
+\subsubsection{Idea}
+\begin{figure}
+    \includegraphics[width = \columnwidth]{figures/XAI3/LocalModelAngosticMethodIdea.png}
+\end{figure}
+\begin{enumerate}[label = (\Alph*)]
+    \item Data with two features, \(x_1\) and \(x_2\). Classifier \(f\) labels calss 1 blue and class 0 grey
+    \item We want to explain the yellow data point. Generate new samples (black dots).
+    \item Weight the dots such that dots closer to the yellow point are more important.
+\end{enumerate}
+\subsubsection*{Steps to generalize LIME}
+\begin{figure}
+    \includegraphics[width = \columnwidth]{figures/XAI3/GeneralizeLIME.png}
+\end{figure}
+\begin{enumerate}
+    \item We want to explain the black box model \(f\). Particularly it's decision for the central orange point in the original unprimed data space. This point a sentence, row, or an image.
+    \item Transport the data point into a binary representation shown here as the dark blue central point in the primed data space.
+    \item Randomly sample data from the binary representation to generate a \(z\)' dataset (other blue point).
+    \item Map the new sampled dataset back to the original image space such that we have an unprimed dataset \(z\).
+    \item Train a white box model \(g\) on the primed dataset such that it has high fidelity, i.e., behaves the same as the black box model \(f\) when labelling the new dataset. Loss function can be seen at the bottom of the plot.
+    \item Use a proximity measure that places more weight on points similar to the original data point we want to explain (exponential kernel).
+\end{enumerate}
+
+\subsubsection{Implementation}
+\subsubsection*{Binary representation for images}
+We can use a graph based algorithem to group our pixels according to colour.
+\begin{figure}[!h]
+    \includegraphics[width = \columnwidth]{figures/XAI3/BinaryRepImage.png}
+\end{figure}
+
+\subsubsection*{Binary representation for text}
+If LLM has empty token then use it to mask out words if not select a token that carries no sentiment such as the word "the"
+
+Original scentenec:
+\[
+\left[
+    \text{The,movie,was,surprisingly,good}
+\right] \rightarrow \left[1,1,1,1,1\right]
+\]
+
+Pertubed sentence:
+\[\left[\text{The,movie,\_\_\_,\_\_\_,good}\right] \rightarrow \left[1, 1, 0, 0, 1\right]\]
+\begin{figure}[!h]
+    \includegraphics[width = \columnwidth]{figures/XAI3/BinaryRepText.png}
+\end{figure}
+
+\subsection{Positives LIME}
+\begin{itemize}
+    \item Requires only the instance we want to explain 
+    \item Model agnostic
+    \item Data agnostic
+    \item Efficient
+    \item Requires single instance
+    \item Can solve XOR
+\end{itemize}
+\subsubsection{Negatives LIME}
+\begin{itemize}
+    \item Result can be sensitive to the kernel width
+    \item Assumes the decision boundary is a manifold
+    \item Sensitive to hyperparameters
+\end{itemize}
+
+\subsubsection{Example}
+Can figure out which words were importnant for an LLM such as GPT that has been fine tunned on a movie review sentiment analysis task.
+\begin{figure}[!h]
+    \includegraphics[width = \columnwidth]{figures/XAI3/ExampleLIME.png}
+\end{figure}
