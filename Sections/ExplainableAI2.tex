@@ -9,7 +9,13 @@ Desirable algotithmic features:
     \item Robust to hyperparameters
     \item Data agnostic
 \end{itemize}
-\subsubsection{Occlusion (Sliding Windows)}
+\subsection{Occlusion (Sliding Windows)}
+Some part of the input are coverd (occluded).
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width = 0.5\columnwidth]{figures/XAI2/Occlusion.png}
+\end{figure}
+
 Problems?:
 \begin{itemize}
     \item Size of Occluded region
@@ -29,7 +35,7 @@ Problems:
     \item No saliency fine grained heatmap
 \end{itemize}
 
-\subsubsection{Occlusion (Adaptive Occlusion)}
+\subsection{Occlusion (Adaptive Occlusion)}
 \begin{figure}[!h]
     \includegraphics[width = 0.7 \columnwidth]{figures/XAI2/AdaptiveOcclusionNetwork.png}
 \end{figure}
@@ -93,7 +99,7 @@ Features:
     \item Robust to hyperparameters
 \end{itemize}
 
-\subsection{Class Activation Mapping(Convolutional Neural Network)}
+\subsection{Class Activation Mapping (Convolutional Neural Network)}
 \begin{figure}[!h]
     \includegraphics[width =  \columnwidth]{figures/XAI2/CAMCNN.png}
 \end{figure}
@@ -186,7 +192,7 @@ Problems:
 
 \(f(x)\): LLM, CNN, etc.
 \[
-M_i = x_i \cdot \frac{\partial f(x)}{\partial x_i}
+M_i = \colorbox{orange!40}{$x_i$} \cdot \colorbox{green!40}{$\frac{\partial f(x)}{\partial x_i}$}
 \]
 Features:
 \begin{itemize}
@@ -214,7 +220,7 @@ When a model learns how a value of a specific pixel affects the model's predicti
 We therefore require a trick that allows us to access the gradient information of each pixel when the model is more sensitive to its charge.
 
 \[
-\phi_i^{IG}(f,x,x') = (x_i - x_i')\int_{\alpha = 0}^{1} \frac{\delta f(x' + \alpha(x - x'))}{\delta x_i}d\alpha
+\phi_i^{IG}(f,x,x') = \colorbox{orange!40}{$(x_i - x_i')$}\int_{\alpha = 0}^{1} \colorbox{green!40}{$\frac{\delta f(x' + \alpha(x - x'))}{\delta x_i}d\alpha$}
 \]
 Integrate along a path in image space.
 
@@ -227,3 +233,59 @@ Integrate along a path in image space.
 \(x\): Target
 
 \(x'\): Baseline 
+
+\subsubsection{Which baseline \(x'\) to choose }
+\begin{itemize}
+    \item Max distance: Fixes the issue with distance from baseline pre-factor. Doesn't represent missingness, has with as much information as image
+    \item Blur: Ituitive since the image is missing information, however biased to highlight high frequenzy data, i.e., pixels close together and very different will result in an average that intern generates a larger perfector an pathlength to integrate along
+    \item Uniform: Sample random image within the allowed pixel range. Assumes the pixels are uncorrelated which is not true
+    \item Gaussian: Same as above but more control
+\end{itemize}
+
+Features:
+\begin{itemize}
+    \item Efficient
+    \item Obeys mathematical axioms: Completeness theorem:\[
+    |f_\theta(x) - f_\theta(x')| = \sum_{i \in pix} \phi(x_i)
+    \]
+    \item Model agnostic
+    \item Requires single instance
+    \item Can solve XOR
+    \item Data agnostic:
+    \subitem Sensitive to choice of baseline
+    \subitem Attributions at pixel level sometimes
+    \subitem Regional explanations are more natural
+\end{itemize}
+
+\subsection{XRAI}
+Graph based computationally efficient method O(n log n).
+
+Merges clusters based on threshold for inter and outer cluster distance.
+
+\subsubsection{Felzenszwalb's algorithm}
+Felzenszwalb's algorithm depends on \(\sigma\) and \(k\) which controls the graduality of the segmented regions.
+\begin{itemize}
+    \item Smaller \(\sigma\) retains higher frequenzy information promoting smaller segmented regions due to easier obtainable thresholds
+    \item Larger \(\sigma\) smooths image allowing segementation to spillover into larger regions.
+    \item Smaller \(k \) implies lower inter-cluster thresholds which promotes smaller segmented regions
+    \item Lager \(k \) implies higher inter-cluster thresholds which promotes larger segmented regions
+\end{itemize}
+\subsubsection{XRAI process}
+\begin{enumerate}
+    \item Original image
+    \item Felzenszwalbs algorithm for multiple granularities
+    \item Integrated Gradients for pixel attributions from a white and a black baseline (Attribution mask)
+    \item Weight overlapping segments according to the pixel attributions from integrated Gradients. Segments that have higher attribution counts are more important. Natural way to reduce spurious pixel importance, since smaller regions receive less up votes due to their area.
+    \item Threshold top 30\% of voted regions and overplot on top of the original image.
+\end{enumerate}
+\begin{figure}
+    \includegraphics[width = \columnwidth]{figures/XAI2/XRAI.png}
+\end{figure}
+Features:
+\begin{itemize}
+    \item Efficient
+    \item Model agnostic
+    \item Requires single instance
+    \item Can solve XOR
+    \item Robust to hyperparameters 
+\end{itemize}
