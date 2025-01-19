@@ -56,4 +56,30 @@ Therefore \(\text{dim}(z) < \text{dim}(x)\).
 
 If \(\text{dim}(z) = \text{dim}(x)\) then the network would simply learn th identity matrix
  
+\subsubsection*{Applications and variants}
+\begin{itemize}
+    \item Data Compression / Dimensionality Reduction
+    \subitem Must capture most important information and compress less important information
+    \item Image in-painting
+    \subitem Masking during Training
+    \subitem Tasked with Reconstruction
+    \subitem Reconstruction Loss between predicted imgae and unmasked image
+    \item De-noising, learned features robust to noise
+    \item Feature extractor for downstream tasks 
+\end{itemize}
 
+Autoencoder are not generative models.
+Irregular latent space prevents us from using an Autoencoder for new contect generation.
+
+\subsection{Variational Autoencoder (VAE)}
+A VAE is a probabilistic spin of an Autoencoder.
+
+When we sample from the latent space we expect decoder to generate plausible output Reconstructions.
+
+\subsubsection{Theory}
+VAEs require three main ideas:
+\begin{enumerate}
+    \item Use of the evidence lower bound (ELBO) to approximate the likelihood function, leading ro a close relationship to the EM algorithm
+    \item Amortized inference in which a second model, the encoder network, is used to approximate the posterior distribution over latent variable in the E step, rather than evaluating the posterior distribution for each data point exactly
+    \item Making the training of the encoder model tractable using the reparameterization trick
+\end{enumerate}
